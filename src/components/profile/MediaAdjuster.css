@@ -1,0 +1,126 @@
+.media-adjuster-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.media-adjuster-modal {
+    background: rgba(25, 26, 30, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 24px 48px rgba(0,0,0,0.4);
+    width: 480px;
+    max-width: 90vw;
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.media-adjuster-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.media-adjuster-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.media-preview-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0,0,0,0.3);
+    border-radius: 12px;
+    padding: 24px;
+}
+
+.media-preview-container {
+    position: relative;
+    overflow: hidden;
+    background: #000;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+
+.media-preview-container.avatar {
+    width: 250px;
+    height: 250px;
+    border-radius: 50%;
+    border: 4px solid rgba(255,255,255,0.1);
+}
+
+.media-preview-container.banner {
+    width: 100%;
+    aspect-ratio: 16/5;
+    border-radius: 12px;
+    border: 2px solid rgba(255,255,255,0.1);
+}
+
+.media-preview-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.2);
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.media-preview-container:hover .media-preview-overlay {
+    opacity: 1;
+}
+
+.drag-hint {
+    color: rgba(255,255,255,0.8);
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+}
+
+.media-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 0 12px;
+}
+
+.scale-slider {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 4px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
+    outline: none;
+}
+
+.scale-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #ff3b30; /* Primary brand color */
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(255, 59, 48, 0.4);
+    transition: transform 0.1s;
+}
+
+.scale-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+}
+
+.media-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 8px;
+}
