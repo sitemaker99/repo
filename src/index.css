@@ -773,7 +773,6 @@ button, .btn, .btn-read { cursor: pointer; font-family: 'DM Sans', sans-serif; f
     box-shadow: 0 0 8px 2px var(--accent-glow);
     transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     pointer-events: none;
-    opacity: var(--pct, 0%) == '0%' ? 0 : 1;
 }
 
 /* ── Header ──────────────────────────────────────────────────────────────── */
