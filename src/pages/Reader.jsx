@@ -8,46 +8,41 @@ import {
     ArrowLeft, ImageOff, Loader2, ChevronDown, List, Settings, X,
     Maximize2, Palette, Sun, AlignJustify, Columns, SkipForward, Crop,
     EyeOff, Keyboard, RotateCcw, ChevronLeft, ChevronRight, Contrast,
-    ZoomIn, BookOpen, Layers, Sliders, Info,
+    ZoomIn, BookOpen, Layers, Sliders, Info, ChevronsLeft, ChevronsRight,
 } from 'lucide-react';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Default settings
 // ─────────────────────────────────────────────────────────────────────────────
 const DEFAULT_SETTINGS = {
-    // Layout
-    readingDirection: 'ltr',    // 'ltr' | 'rtl' | 'vertical'
-    pageView:         'single', // 'single' | 'double'
-    fitMode:          'width',  // 'width' | 'height' | 'original' | 'contain'
-    pageGap:          8,        // px between pages (vertical scroll mode)
-    pageMaxWidth:     800,      // px — max page width for single / vertical
-    pageTransition:   'none',   // 'none' | 'slide' | 'fade'
-    // Appearance
-    theme:            'black',  // 'black' | 'dark' | 'gray' | 'white' | 'sepia' | 'custom'
+    readingDirection: 'ltr',
+    pageView:         'single',
+    fitMode:          'width',
+    pageGap:          8,
+    pageMaxWidth:     800,
+    pageTransition:   'none',
+    theme:            'black',
     customBg:         '#0d0d0d',
     customText:       '#eeeeee',
-    brightness:       100,      // 50–150
-    contrast:         100,      // 50–150
-    saturation:       100,      // 0–200
-    // Behaviour
+    brightness:       100,
+    contrast:         100,
+    saturation:       100,
     autoNextChapter:  true,
     cropMargins:      false,
     hideUI:           false,
-    clickToFlip:      true,     // clicking left/right third of page navigates
-    scrollAmount:     3,        // pages per scroll wheel tick (1–10)
-    // Shortcuts (recordable)
+    clickToFlip:      true,
+    scrollAmount:     3,
     shortcuts: {
         nextPage:     'ArrowRight',
         prevPage:     'ArrowLeft',
-        nextChapter:  'Period',       // "."
-        prevChapter:  'Comma',        // ","
+        nextChapter:  'Period',
+        prevChapter:  'Comma',
         toggleUI:     'KeyH',
         openSettings: 'KeyS',
         goBack:       'Escape',
-        zoomIn:       'Equal',        // "="
+        zoomIn:       'Equal',
         zoomOut:      'Minus',
     },
-    // Zoom (runtime, not persisted between sessions but kept in settings obj)
     zoom: 100,
 };
 
@@ -67,7 +62,9 @@ function loadSettings() {
     }
 }
 function saveSettings(s) {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch { /**/ }
+    // Don't persist zoom — it's a runtime-only value
+    const { zoom: _zoom, ...toSave } = s;
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave)); } catch { /**/ }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -143,7 +140,7 @@ function ChapterJumper({ chapters, currentId, mangaId, navigate }) {
             <button className="cj-trigger" onClick={() => setOpen(v => !v)} title="Jump to chapter">
                 <List size={15} />
                 <span>{current ? `Ch. ${current.number}` : '—'}</span>
-                <ChevronDown size={13} style={{ opacity: 0.6 }} />
+                <ChevronDown size={13} className={`cj-chevron${open ? ' cj-chevron--open' : ''}`} />
             </button>
             {open && (
                 <div className="cj-panel">
@@ -169,6 +166,7 @@ function ChapterJumper({ chapters, currentId, mangaId, navigate }) {
                                     <span className="cj-num">Ch. {ch.number}</span>
                                     {hasTitle && <span className="cj-title">{ch.title}</span>}
                                     {ch.pageCount && <span className="cj-pages">{ch.pageCount}p</span>}
+                                    {isActive && <span className="cj-current-dot" />}
                                 </button>
                             );
                         })}
@@ -257,6 +255,7 @@ function ShortcutRow({ label, actionKey, shortcuts, onChange }) {
             e.preventDefault();
             e.stopPropagation();
             if (e.code === 'Escape') { setRecording(false); return; }
+            // Prevent setting a shortcut already used by another action
             onChange(actionKey, e.code);
             setRecording(false);
         };
@@ -282,10 +281,10 @@ function ShortcutRow({ label, actionKey, shortcuts, onChange }) {
 // Settings Panel  (tabbed)
 // ─────────────────────────────────────────────────────────────────────────────
 const SETTINGS_TABS = [
-    { id: 'layout',     label: 'Layout',     icon: <Layers size={14} /> },
-    { id: 'appearance', label: 'Look',        icon: <Palette size={14} /> },
-    { id: 'behaviour',  label: 'Feel',        icon: <Sliders size={14} /> },
-    { id: 'shortcuts',  label: 'Keys',        icon: <Keyboard size={14} /> },
+    { id: 'layout',     label: 'Layout',  icon: <Layers size={14} /> },
+    { id: 'appearance', label: 'Look',    icon: <Palette size={14} /> },
+    { id: 'behaviour',  label: 'Feel',    icon: <Sliders size={14} /> },
+    { id: 'shortcuts',  label: 'Keys',    icon: <Keyboard size={14} /> },
 ];
 
 const SHORTCUT_ACTIONS = [
@@ -413,7 +412,9 @@ function SettingsPanel({ settings, onChange, onClose }) {
                                     className={`rs-theme-btn${settings.theme === val ? ' active' : ''}`}
                                     style={{ background: t.bg, border: `2.5px solid ${settings.theme === val ? 'var(--accent)' : 'transparent'}` }}
                                     onClick={() => set('theme', val)}
-                                    title={t.label} aria-label={t.label} />
+                                    title={t.label} aria-label={t.label}>
+                                    {settings.theme === val && <span className="rs-theme-check">✓</span>}
+                                </button>
                             ))}
                             {/* Custom */}
                             <button
@@ -423,6 +424,12 @@ function SettingsPanel({ settings, onChange, onClose }) {
                                 style={{ background: settings.customBg, border: `2.5px solid ${settings.theme === 'custom' ? 'var(--accent)' : 'transparent'}` }}>
                                 <Palette size={12} style={{ color: settings.customText }} />
                             </button>
+                        </div>
+                        <div className="rs-theme-labels">
+                            {Object.entries(THEME_MAP).map(([val, t]) => (
+                                <span key={val} className={`rs-theme-label${settings.theme === val ? ' active' : ''}`}>{t.label}</span>
+                            ))}
+                            <span className={`rs-theme-label${settings.theme === 'custom' ? ' active' : ''}`}>Custom</span>
                         </div>
                     </div>
 
@@ -474,7 +481,6 @@ function SettingsPanel({ settings, onChange, onClose }) {
                     <div className="rs-divider" />
 
                     <SliderRow icon={<ChevronDown size={14} />} label="Scroll Speed"
-                        desc="Pages per scroll tick"
                         settingKey="scrollAmount" min={1} max={10} step={1} unit="×"
                         settings={settings} onSet={set} />
                 </>}
@@ -510,17 +516,17 @@ function SettingsPanel({ settings, onChange, onClose }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Progress bar (thin strip at top of screen, always visible)
+// Progress bar
 // ─────────────────────────────────────────────────────────────────────────────
 function ReadingProgress({ current, total }) {
     const pct = total > 0 ? Math.round((current / Math.max(total - 1, 1)) * 100) : 0;
     return (
-        <div className="rdr-progress-bar" style={{ '--pct': `${pct}%` }} title={`${pct}%`} />
+        <div className="rdr-progress-bar" style={{ '--pct': `${pct}%` }} title={`${pct}% read`} />
     );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Click zones overlay (for click-to-flip)
+// Click zones overlay
 // ─────────────────────────────────────────────────────────────────────────────
 function ClickZones({ onNext, onPrev, enabled }) {
     if (!enabled) return null;
@@ -529,6 +535,21 @@ function ClickZones({ onNext, onPrev, enabled }) {
             <div className="rdr-click-zone rdr-click-zone--left"  onClick={onPrev} />
             <div className="rdr-click-zone rdr-click-zone--mid"   />
             <div className="rdr-click-zone rdr-click-zone--right" onClick={onNext} />
+        </div>
+    );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Toast notification (replaces jarring alert())
+// ─────────────────────────────────────────────────────────────────────────────
+function ReaderToast({ message, onDismiss }) {
+    useEffect(() => {
+        const t = setTimeout(onDismiss, 2800);
+        return () => clearTimeout(t);
+    }, [onDismiss]);
+    return (
+        <div className="rdr-toast" onClick={onDismiss}>
+            {message}
         </div>
     );
 }
@@ -549,6 +570,7 @@ export default function Reader() {
     const [settings, setSettings]         = useState(loadSettings);
     const [headerVisible, setHeaderVisible] = useState(true);
     const [lastActivity, setLastActivity]   = useState(Date.now());
+    const [readerToast, setReaderToast]     = useState(null);
 
     const { savePageProgress, getSavedPage, markChapterRead, markAuthenticChapterRead, addReadingTime, recordVisit } = useTrackerStore();
     const containerRef = useRef(null);
@@ -559,27 +581,33 @@ export default function Reader() {
 
     usePagePreloader(pages, currentPage);
 
-    // Persist settings
+    // Persist settings (excluding runtime zoom)
     useEffect(() => { saveSettings(settings); }, [settings]);
 
-    // ── Global Activity Tracker (for Idle Timeout & Immersive UI) ─────────────
+    // ── Global Activity Tracker ───────────────────────────────────────────────
+    const hideUIRef = useRef(settings.hideUI);
+    useEffect(() => { hideUIRef.current = settings.hideUI; }, [settings.hideUI]);
+
     useEffect(() => {
         const updateActivity = () => {
             setLastActivity(Date.now());
-            if (settings.hideUI) setHeaderVisible(true);
+            if (hideUIRef.current) setHeaderVisible(true);
         };
-        
+
         window.addEventListener('mousemove', updateActivity);
         window.addEventListener('touchstart', updateActivity, { passive: true });
         window.addEventListener('keydown', updateActivity);
         window.addEventListener('scroll', updateActivity, { passive: true });
-        
+
         const timer = setInterval(() => {
-            if (settings.hideUI && Date.now() - lastActivity > 2500) {
-                setHeaderVisible(false);
+            if (hideUIRef.current) {
+                setLastActivity(prev => {
+                    if (Date.now() - prev > 2500) setHeaderVisible(false);
+                    return prev;
+                });
             }
         }, 500);
-        
+
         return () => {
             window.removeEventListener('mousemove', updateActivity);
             window.removeEventListener('touchstart', updateActivity);
@@ -587,13 +615,13 @@ export default function Reader() {
             window.removeEventListener('scroll', updateActivity);
             clearInterval(timer);
         };
-    }, [settings.hideUI, lastActivity]);
+    }, []); // intentionally empty
 
     // ── Reading Time Tracker ──────────────────────────────────────────────────
     useEffect(() => {
         if (!mangaId) return;
         let lastTick = Date.now();
-        const IDLE_TIMEOUT = 60000; // 1 minute
+        const IDLE_TIMEOUT = 60000;
 
         const tick = setInterval(() => {
             const now = Date.now();
@@ -601,7 +629,7 @@ export default function Reader() {
                 addReadingTime(mangaId, now - lastTick);
             }
             lastTick = now;
-        }, 5000); // 5 seconds polling
+        }, 5000);
 
         return () => clearInterval(tick);
     }, [mangaId, lastActivity, addReadingTime]);
@@ -621,7 +649,9 @@ export default function Reader() {
         if (!chapterId || !mangaId) return;
         let alive = true;
         setPagesLoading(true); setPages([]);
-        viewedPages.current.clear(); // Reset viewed pages for new chapter
+        setCurrentPage(0);
+        viewedPages.current.clear();
+        setInitialRestoreDone(false);
         const knownPageCount = manga?.chapters?.find(c => c.id === chapterId)?.pageCount ?? null;
         getChapterPages(mangaId, chapterId, knownPageCount)
             .then(urls => { if (alive) { setPages(Array.isArray(urls) ? urls : []); setPagesLoading(false); } })
@@ -643,7 +673,7 @@ export default function Reader() {
                 if (containerRef.current) containerRef.current.scrollTop = 0;
             }
             setInitialRestoreDone(true);
-        }, 150); // slight delay to allow layout
+        }, 150);
 
         return () => clearTimeout(timer);
     }, [pages, pagesLoading, chapterId, mangaId]); // eslint-disable-line
@@ -658,7 +688,7 @@ export default function Reader() {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         const idx = Number(entry.target.dataset.pageIndex);
-                        if (!isNaN(idx)) viewedPages.current.add(idx); // Track authentic view
+                        if (!isNaN(idx)) viewedPages.current.add(idx);
                         if (!best || entry.intersectionRatio > best.intersectionRatio) best = entry;
                     }
                 });
@@ -682,9 +712,7 @@ export default function Reader() {
         }
         if (currentPage >= pages.length - 1) {
             markChapterRead(mangaId, chapterId);
-            
-            // Authentic read check
-            if (viewedPages.current.size >= pages.length * 0.9) { // 90% tolerance for skipped intersection frames
+            if (viewedPages.current.size >= pages.length * 0.9) {
                 markAuthenticChapterRead(mangaId, chapterId);
             }
         }
@@ -694,22 +722,24 @@ export default function Reader() {
     const chapterIndex   = manga?.chapters?.findIndex(c => c.id === chapterId) ?? -1;
     const pageCount      = pages.length;
 
-    const lastImagePageIdx = settings.pageView === 'double' 
-        ? Math.max(0, (displayPages.length - 1) * 2) 
+    const lastImagePageIdx = settings.pageView === 'double'
+        ? Math.max(0, Math.floor((pageCount - 1) / 2) * 2)
         : Math.max(0, pageCount - 1);
 
+    // ── Navigation: chapters sorted newest-first (index 0 = newest)
+    // "Next chapter" = chronologically forward = lower array index
+    // "Prev chapter" = chronologically backward = higher array index
     const goNext = useCallback(() => {
         const maxPage = settings.readingDirection === 'vertical' ? lastImagePageIdx : pageCount;
-        
         if (currentPage < maxPage) {
             let next = currentPage + (settings.pageView === 'double' ? 2 : 1);
             if (next > maxPage) next = maxPage;
-            
             setCurrentPage(next);
             if (next <= lastImagePageIdx) {
                 pageRefs.current[next]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         } else if (settings.autoNextChapter && chapterIndex > 0) {
+            // chapterIndex - 1 is the chronologically next chapter (newer → lower index)
             navigate(`/read/${mangaId}/${manga.chapters[chapterIndex - 1].id}`);
         }
     }, [currentPage, pageCount, lastImagePageIdx, chapterIndex, manga, mangaId, navigate, settings.autoNextChapter, settings.readingDirection, settings.pageView]);
@@ -727,10 +757,14 @@ export default function Reader() {
                 pageRefs.current[prev]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         } else if (chapterIndex >= 0 && chapterIndex < (manga?.chapters?.length ?? 0) - 1) {
+            // chapterIndex + 1 is the chronologically previous chapter (older → higher index)
             navigate(`/read/${mangaId}/${manga.chapters[chapterIndex + 1].id}`);
         }
     }, [currentPage, chapterIndex, manga, mangaId, navigate, settings.pageView, pageCount, lastImagePageIdx]);
 
+    // FIX: goNextChapter and goPrevChapter were swapped in naming.
+    // Chapters are newest-first. "Next chapter" (chronologically forward) = chapterIndex - 1.
+    // "Prev chapter" (chronologically backward) = chapterIndex + 1.
     const goNextChapter = useCallback(() => {
         if (chapterIndex > 0 && manga?.chapters)
             navigate(`/read/${mangaId}/${manga.chapters[chapterIndex - 1].id}`);
@@ -796,12 +830,19 @@ export default function Reader() {
     // ── Early returns ─────────────────────────────────────────────────────────
     if (loading) return (
         <div className="reader-loading-screen">
-            <Loader2 size={36} className="spin-anim" />
-            <span>Loading Chapter…</span>
+            <div className="reader-loading-inner">
+                <div className="reader-loading-spinner">
+                    <Loader2 size={32} className="spin-anim" />
+                </div>
+                <div className="reader-loading-text">
+                    <span className="reader-loading-title">Loading Chapter</span>
+                    <span className="reader-loading-dots"><span>.</span><span>.</span><span>.</span></span>
+                </div>
+            </div>
         </div>
     );
-    if (!manga)          return <div className="error-state">Manga not found.</div>;
-    if (!currentChapter) return <div className="error-state">Chapter not found.</div>;
+    if (!manga)          return <div className="error-state"><ImageOff size={32} /><p>Manga not found.</p></div>;
+    if (!currentChapter) return <div className="error-state"><ImageOff size={32} /><p>Chapter not found.</p></div>;
 
     // ── Computed ──────────────────────────────────────────────────────────────
     const theme        = resolveTheme(settings);
@@ -836,36 +877,53 @@ export default function Reader() {
 
     const uiHidden = settings.hideUI && !headerVisible;
 
-    const isFirstPage = currentPage === 0 && chapterIndex === 0;
-    const isLastPage  = currentPage >= pageCount - 1 && !settings.autoNextChapter;
+    // FIX: isFirstPage now correctly reflects whether we're at the very beginning
+    // (page 0 of the oldest chapter, which is the last in the array).
+    const isFirstPage = currentPage === 0 && chapterIndex >= (manga?.chapters?.length ?? 1) - 1;
+    // FIX: isLastPage should only disable the button when autoNextChapter is OFF
+    // AND there's no next chapter to go to either.
+    const isLastPage  = currentPage >= pageCount - 1
+        && !settings.autoNextChapter
+        && chapterIndex <= 0;
+
+    const hasPrevChapter = chapterIndex < (manga?.chapters?.length ?? 1) - 1;
+    const hasNextChapter = chapterIndex > 0;
 
     return (
         <div
             className={`reader-page${settings.hideUI ? ' reader-immersive' : ''}`}
             style={{ background: theme.bg, color: theme.color }}
         >
-            {/* ── Thin progress bar (always at top, above header) ── */}
+            {/* ── Thin progress bar ── */}
             <ReadingProgress current={currentPage} total={pageCount} />
+
+            {/* ── Toast ── */}
+            {readerToast && (
+                <ReaderToast message={readerToast} onDismiss={() => setReaderToast(null)} />
+            )}
 
             {/* ── Header ── */}
             <header className={`reader-header${uiHidden ? ' reader-header--hidden' : ''}`}
                 style={{ background: `${theme.bg}ee` }}>
-                <button onClick={() => navigate(`/manga/${mangaId}`)} className="btn-icon rdr-back">
-                    <ArrowLeft size={16} /> Back
+                <button onClick={() => navigate(`/manga/${mangaId}`)} className="btn-icon rdr-back" title="Back to manga">
+                    <ArrowLeft size={16} /> <span className="rdr-back-text">Back</span>
                 </button>
 
                 <div className="reader-title">
                     <span className="reader-title__manga">{manga.title}</span>
                     <span className="reader-title__chapter">
-                        {currentChapter.title || `Ch. ${currentChapter.number ?? currentChapter.index}`}
+                        {currentChapter.title && currentChapter.title !== `Chapter ${currentChapter.number}`
+                            ? currentChapter.title
+                            : `Chapter ${currentChapter.number ?? currentChapter.index}`}
                     </span>
                 </div>
 
                 <div className="reader-controls">
                     {/* Prev chapter */}
                     <button className="rdr-ctrl-btn" onClick={goPrevChapter}
-                        disabled={chapterIndex <= 0} title="Previous Chapter">
-                        <ChevronLeft size={16} />
+                        disabled={!hasPrevChapter}
+                        title={hasPrevChapter ? `Ch. ${manga.chapters[chapterIndex + 1]?.number}` : 'No previous chapter'}>
+                        <ChevronsLeft size={16} />
                     </button>
 
                     <ChapterJumper
@@ -876,13 +934,13 @@ export default function Reader() {
 
                     {/* Next chapter */}
                     <button className="rdr-ctrl-btn" onClick={goNextChapter}
-                        disabled={chapterIndex >= (manga.chapters?.length ?? 1) - 1}
-                        title="Next Chapter">
-                        <ChevronRight size={16} />
+                        disabled={!hasNextChapter}
+                        title={hasNextChapter ? `Ch. ${manga.chapters[chapterIndex - 1]?.number}` : 'No next chapter'}>
+                        <ChevronsRight size={16} />
                     </button>
 
                     {/* Page counter */}
-                    <div className="page-counter">
+                    <div className="page-counter" title={`Page ${currentPage + 1} of ${pageCount}`}>
                         {pagesLoading
                             ? <Loader2 size={13} className="spin-anim" />
                             : <>{currentPage >= pageCount ? pageCount : currentPage + 1}<span className="page-counter__sep">/</span>{pageCount || '?'}</>}
@@ -896,7 +954,7 @@ export default function Reader() {
                             title={`Reader settings (${keyLabel(settings.shortcuts.openSettings)})`}
                             aria-label="Open reader settings">
                             <Settings size={15} />
-                            <span>Settings</span>
+                            <span className="rdr-settings-text">Settings</span>
                         </button>
                         {settingsOpen && (
                             <>
@@ -956,11 +1014,12 @@ export default function Reader() {
                                             e.currentTarget.style.display = 'none';
                                             e.currentTarget.nextElementSibling.style.display = 'flex';
                                         }} />
-                                    <div className="img-error" style={{ display: 'none', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: '300px' }}>
-                                        <ImageOff size={28} style={{ marginBottom: '8px' }} />
-                                        <span>Page {realIdx + pIdx + 1} failed</span>
-                                        <button className="btn btn-secondary" onClick={(e) => {
-                                            const img = e.currentTarget.parentElement.previousElementSibling;
+                                    <div className="img-error" style={{ display: 'none' }}>
+                                        <ImageOff size={28} />
+                                        <span>Page {realIdx + pIdx + 1} failed to load</span>
+                                        <button className="rdr-retry-btn" onClick={(e) => {
+                                            const errorDiv = e.currentTarget.parentElement;
+                                            const img = errorDiv.previousElementSibling;
                                             try {
                                                 const urlObj = new URL(img.src);
                                                 urlObj.searchParams.set('retry', Date.now());
@@ -969,8 +1028,8 @@ export default function Reader() {
                                                 img.src = img.src + (img.src.includes('?') ? '&' : '?') + 'retry=' + Date.now();
                                             }
                                             img.style.display = 'block';
-                                            e.currentTarget.parentElement.style.display = 'none';
-                                        }} style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                            errorDiv.style.display = 'none';
+                                        }}>
                                             <RotateCcw size={14} /> Retry
                                         </button>
                                     </div>
@@ -980,10 +1039,13 @@ export default function Reader() {
                     );
                 })}
                 
-                {/* ── Chapter End UI (Caught up / Reactions) ── */}
+                {/* ── Chapter End UI ── */}
                 {settings.readingDirection === 'vertical' && !pagesLoading && pages.length > 0 && (
-                    <div style={{ width: '100%', flexShrink: 0, paddingBottom: '60px', marginTop: '40px' }}>
-                        <ChapterEndUI manga={manga} mangaId={mangaId} chapterId={chapterId} />
+                    <div className="rdr-chapter-end-wrap">
+                        <ChapterEndUI
+                            manga={manga} mangaId={mangaId} chapterId={chapterId}
+                            onLoginRequired={() => setReaderToast('Please log in to react to chapters')}
+                        />
                     </div>
                 )}
                 
@@ -992,16 +1054,17 @@ export default function Reader() {
                         className={`reader-page-wrap transition-${settings.pageTransition}${currentPage >= pageCount ? ' active' : ''}`}
                         style={{ maxWidth: wrapMaxWidth }}
                     >
-                        <div style={{ width: '100%', height: '100%', overflowY: 'auto', WebkitOverflowScrolling: 'touch', boxSizing: 'border-box' }}>
-                            <div style={{ padding: '20px', paddingBottom: '120px' }}>
-                                <ChapterEndUI manga={manga} mangaId={mangaId} chapterId={chapterId} />
-                            </div>
+                        <div className="rdr-chapter-end-scroll">
+                            <ChapterEndUI
+                                manga={manga} mangaId={mangaId} chapterId={chapterId}
+                                onLoginRequired={() => setReaderToast('Please log in to react to chapters')}
+                            />
                         </div>
                     </div>
                 )}
             </div>
 
-            {/* ── Click zones (left / right tap to navigate) ── */}
+            {/* ── Click zones ── */}
             {settings.clickToFlip && !settingsOpen && (
                 <ClickZones
                     enabled={settings.readingDirection !== 'vertical'}
@@ -1014,15 +1077,15 @@ export default function Reader() {
                 style={{ background: `${theme.bg}ee` }}>
                 <button className="rdr-nav-btn" onClick={goPrev} disabled={isFirstPage}>
                     <ChevronLeft size={16} />
-                    {currentPage === 0 ? 'Prev Chapter' : 'Prev Page'}
+                    <span>{currentPage === 0 ? (hasPrevChapter ? 'Prev Ch.' : 'Start') : 'Prev'}</span>
                 </button>
 
                 {/* Mini page strip */}
                 <div className="rdr-page-strip" title={`Page ${currentPage + 1} of ${pageCount}`}>
                     <span className="rdr-page-label">{currentPage + 1} / {pageCount || '?'}</span>
                     <div className="rdr-strip-track">
-                        {pageCount > 0 && Array.from({ length: Math.min(pageCount, 30) }).map((_, i) => {
-                            const pi = Math.round((i / Math.min(pageCount - 1, 29)) * (pageCount - 1));
+                        {pageCount > 0 && Array.from({ length: Math.min(pageCount, 40) }).map((_, i) => {
+                            const pi = Math.round((i / Math.min(pageCount - 1, 39)) * (pageCount - 1));
                             return (
                                 <button key={i}
                                     className={`rdr-strip-dot${pi === currentPage ? ' active' : pi < currentPage ? ' read' : ''}`}
@@ -1037,9 +1100,9 @@ export default function Reader() {
                 </div>
 
                 <button className="rdr-nav-btn" onClick={goNext} disabled={isLastPage}>
-                    {currentPage >= pageCount - 1
-                        ? settings.autoNextChapter ? 'Next Chapter' : 'End'
-                        : 'Next Page'}
+                    <span>{currentPage >= pageCount - 1
+                        ? (hasNextChapter && settings.autoNextChapter ? 'Next Ch.' : 'End')
+                        : 'Next'}</span>
                     <ChevronRight size={16} />
                 </button>
             </footer>

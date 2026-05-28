@@ -1,142 +1,198 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   CHAPTER END UI  —  complete visual overhaul
+═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Shell ───────────────────────────────────────────────────────────────── */
 .chapter-end-container {
-    width: 100%;
-    max-width: 800px;
-    margin: 40px auto;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-    padding: 0 16px;
+    width: 100%; max-width: 680px; margin: 0 auto;
+    padding: 2rem 1.25rem 3rem;
+    display: flex; flex-direction: column; gap: 1.25rem;
 }
 
+/* ── Section divider ─────────────────────────────────────────────────────── */
+.chapter-end-divider {
+    display: flex; align-items: center; gap: 0.75rem;
+}
+.chapter-end-divider-line {
+    flex: 1; height: 1px;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.08), transparent);
+}
+.chapter-end-divider-label {
+    font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: rgba(255,255,255,0.22); white-space: nowrap;
+}
+
+/* ── Caught-up card ──────────────────────────────────────────────────────── */
 .caught-up-card {
-    background: var(--bg-card);
-    border-radius: 12px;
-    padding: 24px;
-    display: flex;
-    gap: 24px;
-    border: 1px solid var(--border-color);
+    position: relative; border-radius: 16px; overflow: hidden;
+    background: #13151a;
+    border: 1px solid rgba(255,255,255,0.07);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+    display: flex; flex-direction: column;
 }
 
+/* Cover banner */
+.caught-up-cover-wrap {
+    position: relative; height: 160px; overflow: hidden;
+    flex-shrink: 0;
+}
 .caught-up-cover {
-    width: 100px;
-    height: 140px;
-    border-radius: 6px;
-    object-fit: cover;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    width: 100%; height: 100%; object-fit: cover;
+    filter: blur(6px) brightness(0.4) saturate(0.7);
+    transform: scale(1.08);
+    transition: filter 0.3s;
+}
+.caught-up-cover-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom,
+        rgba(10,10,12,0.1) 0%,
+        rgba(10,10,12,0.55) 60%,
+        #13151a 100%);
 }
 
+/* Text content */
 .caught-up-info {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    padding: 1.1rem 1.4rem 1.4rem;
+    display: flex; flex-direction: column; gap: 0.55rem;
+    position: relative; z-index: 1;
 }
 
+.caught-up-badge-row { display: flex; }
 .caught-up-badge {
-    color: var(--accent);
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 4px;
+    display: inline-flex; align-items: center;
+    font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; padding: 0.28rem 0.7rem;
+    border-radius: 20px;
+}
+.caught-up-badge--next {
+    background: rgba(214,58,58,0.15); color: var(--accent-hov);
+    border: 1px solid rgba(214,58,58,0.25);
+}
+.caught-up-badge--done {
+    background: rgba(52,199,89,0.12); color: #4ade80;
+    border: 1px solid rgba(52,199,89,0.22);
 }
 
 .caught-up-title {
-    font-size: 20px;
-    font-weight: 700;
-    margin: 0 0 4px 0;
+    font-size: 1.25rem; font-weight: 800; line-height: 1.25;
+    color: #fff; margin: 0;
+    font-family: 'Shippori Mincho', Georgia, serif;
 }
 
 .caught-up-chapter {
-    color: var(--text-secondary);
-    font-size: 14px;
-    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 0.4rem;
+    font-size: 0.78rem; color: rgba(255,255,255,0.38); font-weight: 500;
 }
 
 .caught-up-actions {
-    display: flex;
-    gap: 12px;
+    display: flex; gap: 0.6rem; flex-wrap: wrap; padding-top: 0.25rem;
+}
+.caught-up-fin-actions {
+    display: flex; gap: 0.6rem; flex-wrap: wrap; width: 100%;
 }
 
-.caught-up-actions .btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 16px;
-    font-size: 14px;
+.caught-up-btn {
+    display: inline-flex; align-items: center; gap: 0.45rem;
+    padding: 0.6rem 1.1rem; border-radius: 10px;
+    font-size: 0.82rem; font-weight: 700; cursor: pointer;
+    transition: background var(--t), box-shadow var(--t), transform 0.1s;
+    border: none; white-space: nowrap;
+}
+.caught-up-btn--primary {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(214,58,58,0.3);
+    flex: 1;
+}
+.caught-up-btn--primary:hover {
+    background: var(--accent-hov);
+    box-shadow: 0 6px 24px rgba(214,58,58,0.45);
+    transform: translateY(-1px);
+}
+.caught-up-btn--ghost {
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.72);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+.caught-up-btn--ghost:hover {
+    background: rgba(255,255,255,0.11);
+    color: #fff;
+    transform: translateY(-1px);
 }
 
+/* ── Reactions card ──────────────────────────────────────────────────────── */
 .reactions-card {
-    background: var(--bg-card);
-    border-radius: 12px;
-    padding: 32px 24px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    border: 1px solid var(--border-color);
+    background: #13151a; border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px; padding: 1.1rem 1.25rem;
+    display: flex; flex-direction: column; gap: 0.85rem;
 }
 
-.reactions-card h3 {
-    margin: 0 0 8px 0;
-    font-size: 18px;
-    font-weight: 600;
+.reactions-header {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem;
 }
-
+.reactions-title {
+    font-size: 0.88rem; font-weight: 700; color: rgba(255,255,255,0.85); margin: 0 0 2px;
+}
 .reactions-total {
-    color: var(--text-secondary);
-    font-size: 13px;
-    margin-bottom: 32px;
+    display: block; font-size: 0.72rem; color: rgba(255,255,255,0.3); margin-top: 2px;
+}
+.reactions-login-hint {
+    font-size: 0.7rem; color: rgba(255,255,255,0.22); font-style: italic;
+    flex-shrink: 0; padding-top: 2px;
 }
 
 .reactions-grid {
-    display: flex;
-    justify-content: center;
-    gap: 32px;
-    flex-wrap: wrap;
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.45rem;
 }
 
 .reaction-btn {
-    background: transparent;
-    border: none;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    cursor: pointer;
-    transition: transform 0.2s;
-    padding: 8px;
-    border-radius: 8px;
+    position: relative; overflow: hidden;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 0.2rem; padding: 0.65rem 0.25rem;
+    background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.07);
+    border-radius: 12px; cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, transform 0.12s, box-shadow 0.15s;
 }
-
-.reaction-btn:hover {
-    transform: translateY(-4px);
-    background: rgba(255, 255, 255, 0.05);
+.reaction-btn:hover:not(.reaction-btn--disabled) {
+    background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.16);
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.3);
 }
-
 .reaction-btn.active {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(214,58,58,0.12); border-color: rgba(214,58,58,0.35);
+    box-shadow: 0 0 0 1px rgba(214,58,58,0.15), inset 0 0 12px rgba(214,58,58,0.05);
 }
-
-.reaction-emoji {
-    font-size: 32px;
-    margin-bottom: 8px;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+.reaction-btn.active:hover:not(.reaction-btn--disabled) {
+    background: rgba(214,58,58,0.18); transform: translateY(-2px) scale(1.05);
 }
+.reaction-btn--disabled { cursor: default; opacity: 0.6; }
 
-.reaction-count {
-    font-weight: 700;
-    font-size: 15px;
-    margin-bottom: 2px;
-    color: var(--text-primary);
+/* Percentage fill bar behind */
+.reaction-fill {
+    position: absolute; bottom: 0; left: 0; height: 100%;
+    background: rgba(255,255,255,0.03); transition: width 0.5s ease;
+    z-index: 0; border-radius: 10px;
 }
+.reaction-btn.active .reaction-fill { background: rgba(214,58,58,0.04); }
 
-.reaction-label {
-    font-size: 12px;
-    color: var(--text-secondary);
+.reaction-emoji  { font-size: 1.35rem; line-height: 1; position: relative; z-index: 1; }
+.reaction-label  { font-size: 0.6rem; font-weight: 600; color: rgba(255,255,255,0.38); letter-spacing: 0.04em; position: relative; z-index: 1; }
+.reaction-count  {
+    font-size: 0.65rem; font-weight: 700; font-variant-numeric: tabular-nums;
+    color: rgba(255,255,255,0.5); position: relative; z-index: 1; min-height: 0.9em;
 }
+.reaction-btn.active .reaction-count { color: var(--accent-hov); }
 
-.comments-placeholder {
-    margin-top: 24px;
-    text-align: center;
-    padding: 40px;
-    background: var(--bg-card);
-    border-radius: 12px;
-    border: 1px dashed var(--border-color);
-    color: var(--text-secondary);
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+    .chapter-end-container { padding: 1.25rem 0.75rem 2rem; gap: 1rem; }
+    .caught-up-cover-wrap  { height: 120px; }
+    .caught-up-title       { font-size: 1.05rem; }
+    .caught-up-info        { padding: 0.85rem 1rem 1.1rem; }
+    .reactions-grid        { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+    .reaction-emoji        { font-size: 1.15rem; }
+    .caught-up-btn         { font-size: 0.78rem; padding: 0.52rem 0.85rem; }
+}
+@media (max-width: 360px) {
+    .reactions-grid        { grid-template-columns: repeat(2, 1fr); }
 }
