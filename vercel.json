@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/atsu-api/(.*)",
+      "destination": "https://atsu.moe/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
